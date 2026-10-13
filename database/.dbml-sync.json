@@ -1,0 +1,356 @@
+{
+    "tables": [
+        {
+            "name": "anggota",
+            "schema": "public",
+            "note": "Tabel yang menyimpan data identitas anggota perpustakaan",
+            "columns": [
+                {
+                    "name": "id_anggota",
+                    "type": {
+                        "name": "varchar(10)",
+                        "schemaName": null,
+                        "args": "10",
+                        "original": null
+                    },
+                    "primaryKey": true,
+                    "unique": false,
+                    "notNull": false,
+                    "autoIncrement": false,
+                    "note": "Primary Key Anggota",
+                    "defaultValue": null
+                },
+                {
+                    "name": "nama_anggota",
+                    "type": {
+                        "name": "varchar(100)",
+                        "schemaName": null,
+                        "args": "100",
+                        "original": null
+                    },
+                    "primaryKey": false,
+                    "unique": false,
+                    "notNull": true,
+                    "autoIncrement": false,
+                    "note": null,
+                    "defaultValue": null
+                },
+                {
+                    "name": "alamat",
+                    "type": {
+                        "name": "varchar(255)",
+                        "schemaName": null,
+                        "args": "255",
+                        "original": null
+                    },
+                    "primaryKey": false,
+                    "unique": false,
+                    "notNull": false,
+                    "autoIncrement": false,
+                    "note": null,
+                    "defaultValue": null
+                },
+                {
+                    "name": "no_telepon",
+                    "type": {
+                        "name": "varchar(15)",
+                        "schemaName": null,
+                        "args": "15",
+                        "original": null
+                    },
+                    "primaryKey": false,
+                    "unique": false,
+                    "notNull": false,
+                    "autoIncrement": false,
+                    "note": null,
+                    "defaultValue": null
+                },
+                {
+                    "name": "email",
+                    "type": {
+                        "name": "varchar(100)",
+                        "schemaName": null,
+                        "args": "100",
+                        "original": null
+                    },
+                    "primaryKey": false,
+                    "unique": false,
+                    "notNull": false,
+                    "autoIncrement": false,
+                    "note": null,
+                    "defaultValue": null
+                },
+                {
+                    "name": "tanggal_daftar",
+                    "type": {
+                        "name": "date",
+                        "schemaName": null,
+                        "args": [],
+                        "original": null
+                    },
+                    "primaryKey": false,
+                    "unique": false,
+                    "notNull": true,
+                    "autoIncrement": false,
+                    "note": null,
+                    "defaultValue": null
+                }
+            ],
+            "indexes": []
+        },
+        {
+            "name": "buku",
+            "schema": "public",
+            "note": "Tabel yang menyimpan data katalog buku perpustakaan",
+            "columns": [
+                {
+                    "name": "id_buku",
+                    "type": {
+                        "name": "varchar(10)",
+                        "schemaName": null,
+                        "args": "10",
+                        "original": null
+                    },
+                    "primaryKey": true,
+                    "unique": false,
+                    "notNull": false,
+                    "autoIncrement": false,
+                    "note": "Primary Key Buku",
+                    "defaultValue": null
+                },
+                {
+                    "name": "judul_buku",
+                    "type": {
+                        "name": "varchar(150)",
+                        "schemaName": null,
+                        "args": "150",
+                        "original": null
+                    },
+                    "primaryKey": false,
+                    "unique": false,
+                    "notNull": true,
+                    "autoIncrement": false,
+                    "note": null,
+                    "defaultValue": null
+                },
+                {
+                    "name": "pengarang",
+                    "type": {
+                        "name": "varchar(100)",
+                        "schemaName": null,
+                        "args": "100",
+                        "original": null
+                    },
+                    "primaryKey": false,
+                    "unique": false,
+                    "notNull": false,
+                    "autoIncrement": false,
+                    "note": null,
+                    "defaultValue": null
+                },
+                {
+                    "name": "penerbit",
+                    "type": {
+                        "name": "varchar(100)",
+                        "schemaName": null,
+                        "args": "100",
+                        "original": null
+                    },
+                    "primaryKey": false,
+                    "unique": false,
+                    "notNull": false,
+                    "autoIncrement": false,
+                    "note": null,
+                    "defaultValue": null
+                },
+                {
+                    "name": "tahun_terbit",
+                    "type": {
+                        "name": "smallint",
+                        "schemaName": null,
+                        "args": [],
+                        "original": null
+                    },
+                    "primaryKey": false,
+                    "unique": false,
+                    "notNull": false,
+                    "autoIncrement": false,
+                    "note": null,
+                    "defaultValue": null
+                },
+                {
+                    "name": "kategori",
+                    "type": {
+                        "name": "varchar(50)",
+                        "schemaName": null,
+                        "args": "50",
+                        "original": null
+                    },
+                    "primaryKey": false,
+                    "unique": false,
+                    "notNull": false,
+                    "autoIncrement": false,
+                    "note": null,
+                    "defaultValue": null
+                },
+                {
+                    "name": "stok",
+                    "type": {
+                        "name": "int",
+                        "schemaName": null,
+                        "args": [],
+                        "original": null
+                    },
+                    "primaryKey": false,
+                    "unique": false,
+                    "notNull": true,
+                    "autoIncrement": false,
+                    "note": null,
+                    "defaultValue": {
+                        "value": 0,
+                        "type": "number"
+                    }
+                }
+            ],
+            "indexes": []
+        },
+        {
+            "name": "peminjaman",
+            "schema": "public",
+            "note": "Tabel transaksi pencatatan peminjaman buku oleh anggota",
+            "columns": [
+                {
+                    "name": "id_peminjaman",
+                    "type": {
+                        "name": "varchar(15)",
+                        "schemaName": null,
+                        "args": "15",
+                        "original": null
+                    },
+                    "primaryKey": true,
+                    "unique": false,
+                    "notNull": false,
+                    "autoIncrement": false,
+                    "note": "Primary Key Peminjaman",
+                    "defaultValue": null
+                },
+                {
+                    "name": "id_anggota",
+                    "type": {
+                        "name": "varchar(10)",
+                        "schemaName": null,
+                        "args": "10",
+                        "original": null
+                    },
+                    "primaryKey": false,
+                    "unique": false,
+                    "notNull": true,
+                    "autoIncrement": false,
+                    "note": "FK ke tabel anggota",
+                    "defaultValue": null
+                },
+                {
+                    "name": "id_buku",
+                    "type": {
+                        "name": "varchar(10)",
+                        "schemaName": null,
+                        "args": "10",
+                        "original": null
+                    },
+                    "primaryKey": false,
+                    "unique": false,
+                    "notNull": true,
+                    "autoIncrement": false,
+                    "note": "FK ke tabel buku",
+                    "defaultValue": null
+                },
+                {
+                    "name": "id_petugas",
+                    "type": {
+                        "name": "varchar(10)",
+                        "schemaName": null,
+                        "args": "10",
+                        "original": null
+                    },
+                    "primaryKey": false,
+                    "unique": false,
+                    "notNull": false,
+                    "autoIncrement": false,
+                    "note": "ID Petugas yang mencatat peminjaman",
+                    "defaultValue": null
+                },
+                {
+                    "name": "waktu_peminjaman",
+                    "type": {
+                        "name": "datetime",
+                        "schemaName": null,
+                        "args": [],
+                        "original": null
+                    },
+                    "primaryKey": false,
+                    "unique": false,
+                    "notNull": true,
+                    "autoIncrement": false,
+                    "note": null,
+                    "defaultValue": null
+                }
+            ],
+            "indexes": []
+        }
+    ],
+    "enums": [],
+    "refs": [
+        {
+            "name": null,
+            "schema": "public",
+            "color": null,
+            "onDelete": "cascade",
+            "onUpdate": "cascade",
+            "endpoints": [
+                {
+                    "schema": "public",
+                    "table": "peminjaman",
+                    "columns": [
+                        "id_anggota"
+                    ],
+                    "relation": "*"
+                },
+                {
+                    "schema": "public",
+                    "table": "anggota",
+                    "columns": [
+                        "id_anggota"
+                    ],
+                    "relation": "1"
+                }
+            ]
+        },
+        {
+            "name": null,
+            "schema": "public",
+            "color": null,
+            "onDelete": "cascade",
+            "onUpdate": "cascade",
+            "endpoints": [
+                {
+                    "schema": "public",
+                    "table": "peminjaman",
+                    "columns": [
+                        "id_buku"
+                    ],
+                    "relation": "*"
+                },
+                {
+                    "schema": "public",
+                    "table": "buku",
+                    "columns": [
+                        "id_buku"
+                    ],
+                    "relation": "1"
+                }
+            ]
+        }
+    ],
+    "version": 1,
+    "generated_at": "2026-10-13T01:59:32+00:00"
+}

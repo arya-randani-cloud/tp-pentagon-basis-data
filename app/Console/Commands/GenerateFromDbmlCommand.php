@@ -12,7 +12,7 @@ class GenerateFromDbmlCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'dbml:generate 
+    protected $signature = 'dbml:export-sql 
                             {file=database/schema.dbml : Path ke file DBML}
                             {--full : Generate skema lengkap 5 tabel (database/schema_full.dbml)}
                             {--migrate : Jalankan php artisan migrate setelah generate}';
