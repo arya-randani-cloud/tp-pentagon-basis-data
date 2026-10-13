@@ -1,0 +1,84 @@
+// Sistem Peminjaman dan Pengembalian Buku - Tim PENTAGON
+// Tempel ke https://dbdiagram.io untuk melihat ERD
+
+Project perpustakaan {
+  database_type: 'MySQL'
+  Note: 'BRD v1.0 - 5 Oktober 2026'
+}
+
+Table petugas {
+  id bigint [pk, increment]
+  nama varchar(100) [not null]
+  username varchar(50) [not null, unique]
+  password varchar(255) [not null, note: 'hash bcrypt (NFR-03)']
+  role varchar(20) [not null, default: 'petugas', note: 'hak akses: admin / petugas (NFR-04)']
+  no_telepon varchar(20)
+  created_at timestamp
+  updated_at timestamp
+}
+
+Table anggota {
+  id bigint [pk, increment]
+  kode_anggota varchar(20) [not null, unique, note: 'ID anggota unik (BR-04)']
+  nama varchar(100) [not null]
+  alamat text
+  no_telepon varchar(20)
+  email varchar(100)
+  created_at timestamp
+  updated_at timestamp
+  deleted_at timestamp [note: 'soft delete agar riwayat transaksi tetap utuh']
+
+  indexes {
+    nama
+  }
+}
+
+Table buku {
+  id bigint [pk, increment]
+  kode_buku varchar(20) [not null, unique, note: 'ID buku unik (BR-04)']
+  judul varchar(200) [not null]
+  penulis varchar(100)
+  penerbit varchar(100)
+  tahun_terbit smallint
+  stok int [not null, default: 1, note: 'opsional, jumlah eksemplar']
+  created_at timestamp
+  updated_at timestamp
+  deleted_at timestamp
+
+  indexes {
+    judul
+  }
+}
+
+Table peminjaman {
+  id bigint [pk, increment]
+  kode_transaksi varchar(30) [not null, unique, note: 'ID transaksi unik (BR-04)']
+  anggota_id bigint [not null, ref: > anggota.id]
+  buku_id bigint [not null, ref: > buku.id]
+  petugas_id bigint [not null, ref: > petugas.id]
+  tanggal_pinjam datetime [not null, note: 'BR-02 wajib ada']
+  tanggal_jatuh_tempo date [note: 'nullable, menunggu klarifikasi batas lama pinjam']
+  status varchar(20) [not null, default: 'dipinjam', note: 'dipinjam / dikembalikan']
+  created_at timestamp
+  updated_at timestamp
+
+  indexes {
+    tanggal_pinjam
+    status
+    (anggota_id, status)
+  }
+}
+
+Table pengembalian {
+  id bigint [pk, increment]
+  peminjaman_id bigint [not null, unique, ref: - peminjaman.id, note: 'BR-03 mengacu ke peminjaman']
+  petugas_id bigint [not null, ref: > petugas.id]
+  tanggal_kembali datetime [not null, note: 'FR-08']
+  catatan text
+  created_at timestamp
+  updated_at timestamp
+
+  indexes {
+    tanggal_kembali
+  }
+}

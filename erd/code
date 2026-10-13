@@ -1,1 +1,44 @@
+// =====================================================================
+// ERD Sistem Peminjaman dan Pengembalian Buku - Tim PENTAGON
+// Skema DBML (3 Tabel Utama: anggota, buku, peminjaman)
+// =====================================================================
 
+Table anggota {
+  id_anggota varchar(10) [pk, note: 'Primary Key Anggota']
+  nama_anggota varchar(100) [not null]
+  alamat varchar(255)
+  no_telepon varchar(15)
+  email varchar(100)
+  tanggal_daftar date [not null]
+
+  Note: 'Tabel yang menyimpan data identitas anggota perpustakaan'
+}
+
+Table buku {
+  id_buku varchar(10) [pk, note: 'Primary Key Buku']
+  judul_buku varchar(150) [not null]
+  pengarang varchar(100)
+  penerbit varchar(100)
+  tahun_terbit smallint
+  kategori varchar(50)
+  stok int [not null, default: 0]
+
+  Note: 'Tabel yang menyimpan data katalog buku perpustakaan'
+}
+
+Table peminjaman {
+  id_peminjaman varchar(15) [pk, note: 'Primary Key Peminjaman']
+  id_anggota varchar(10) [not null, note: 'FK ke tabel anggota']
+  id_buku varchar(10) [not null, note: 'FK ke tabel buku']
+  id_petugas varchar(10) [note: 'ID Petugas yang mencatat peminjaman']
+  waktu_peminjaman datetime [not null]
+
+  Note: 'Tabel transaksi pencatatan peminjaman buku oleh anggota'
+}
+
+// Hubungan / Relasi Antar Tabel
+// Anggota (1) melakukan (N) Peminjaman
+Ref: peminjaman.id_anggota > anggota.id_anggota [delete: cascade, update: cascade]
+
+// Buku (1) dipinjam dalam (N) Peminjaman
+Ref: peminjaman.id_buku > buku.id_buku [delete: cascade, update: cascade]
