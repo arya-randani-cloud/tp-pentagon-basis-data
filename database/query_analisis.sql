@@ -4,6 +4,64 @@
 -- =============================================================
 
 -- ─────────────────────────────────────────────────────────────
+-- LATIHAN: SELECT, WHERE, ANALISIS, GROUP BY, DAN INSERT
+-- Jalankan bagian ini berurutan. SQLite menggunakan EXPLAIN QUERY PLAN;
+-- SQLite tidak menyediakan EXPLAIN ANALYZE seperti PostgreSQL/MySQL.
+-- ─────────────────────────────────────────────────────────────
+
+-- Reset indeks demonstrasi agar perbandingan tetap konsisten saat diulang
+DROP INDEX IF EXISTS idx_anggota_tanggal_daftar;
+
+-- 1. SELECT dengan kondisi WHERE (sebelum indeks)
+SELECT anggota_id, nama_anggota, nim, tanggal_daftar, status
+FROM anggota
+WHERE tanggal_daftar BETWEEN '2025-01-01' AND '2026-12-31';
+
+-- 2. Analisis rencana query sebelum indeks
+EXPLAIN QUERY PLAN
+SELECT anggota_id, nama_anggota, nim, tanggal_daftar, status
+FROM anggota
+WHERE tanggal_daftar BETWEEN '2025-01-01' AND '2026-12-31';
+
+-- 3. Buat indeks untuk kolom yang digunakan pada WHERE
+CREATE INDEX IF NOT EXISTS idx_anggota_tanggal_daftar
+ON anggota(tanggal_daftar);
+
+-- 4. Analisis rencana query setelah indeks
+EXPLAIN QUERY PLAN
+SELECT anggota_id, nama_anggota, nim, tanggal_daftar, status
+FROM anggota
+WHERE tanggal_daftar BETWEEN '2025-01-01' AND '2026-12-31';
+
+-- 5. SELECT kembali setelah indeks dibuat
+SELECT anggota_id, nama_anggota, nim, tanggal_daftar, status
+FROM anggota
+WHERE tanggal_daftar BETWEEN '2025-01-01' AND '2026-12-31';
+
+-- 6. SELECT dengan GROUP BY untuk menghitung jumlah anggota per status
+SELECT status, COUNT(*) AS jumlah_anggota
+FROM anggota
+GROUP BY status
+ORDER BY status;
+
+-- 7. INSERT lima data anggota
+INSERT INTO anggota
+    (nama_anggota, nim, email, telepon, alamat, jenis_kelamin, tanggal_daftar, status)
+VALUES
+    ('Dina Pratama', 'DB26IF9001', 'dina.pratama@example.com', '081200000001', 'Bandung', 'P', '2026-10-27', 'aktif'),
+    ('Rafi Saputra', 'DB26IF9002', 'rafi.saputra@example.com', '081200000002', 'Jakarta', 'L', '2026-10-27', 'aktif'),
+    ('Maya Lestari', 'DB26IF9003', 'maya.lestari@example.com', '081200000003', 'Yogyakarta', 'P', '2026-10-27', 'aktif'),
+    ('Fajar Wijaya', 'DB26IF9004', 'fajar.wijaya@example.com', '081200000004', 'Surabaya', 'L', '2026-10-27', 'aktif'),
+    ('Nisa Ramadhani', 'DB26IF9005', 'nisa.ramadhani@example.com', '081200000005', 'Semarang', 'P', '2026-10-27', 'aktif')
+ON CONFLICT(nim) DO NOTHING;
+
+-- 8. SELECT untuk menampilkan lima data yang baru dimasukkan
+SELECT anggota_id, nama_anggota, nim, email, tanggal_daftar, status
+FROM anggota
+WHERE nim IN ('DB26IF9001', 'DB26IF9002', 'DB26IF9003', 'DB26IF9004', 'DB26IF9005')
+ORDER BY nim;
+
+-- ─────────────────────────────────────────────────────────────
 -- 1. OVERVIEW: Jumlah data per tabel
 -- ─────────────────────────────────────────────────────────────
 SELECT 'kategori' AS tabel, COUNT(*) AS jumlah FROM kategori
