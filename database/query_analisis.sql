@@ -301,3 +301,257 @@ JOIN buku b ON p.buku_id = b.buku_id
 JOIN kategori k ON b.kategori_id = k.kategori_id
 GROUP BY k.nama_kategori
 ORDER BY persen_terlambat DESC;
+
+
+-- ─────────────────────────────────────────────────────────────
+-- 21. PELANGGAN YANG MENGORDER 3 HARI TERAKHIR (SELECT, FROM, JOIN, ON)
+--     BESERTA EXPLAIN ANALYZE (BEFORE & AFTER INDEX)
+-- Permintaan: "Perlihatkan saya pelanggan yang mengorder 3 hari terakhir"
+-- ─────────────────────────────────────────────────────────────
+
+-- =============================================================
+-- BAGIAN A: MYSQL 8.0+ (DROP FOREIGN KEY -> DROP INDEX -> EXPLAIN ANALYZE)
+-- =============================================================
+
+-- TAHAP 1: Buang Foreign Key terlebih dahulu (agar MySQL mengizinkan drop index)
+ALTER TABLE orders DROP FOREIGN KEY orders_id_pelanggan_foreign;
+
+-- TAHAP 2: Buang Index pada tabel orders
+DROP INDEX orders_id_pelanggan_tanggal_order_index ON orders;
+DROP INDEX orders_tanggal_order_index ON orders;
+
+-- Cek index setelah dihapus (hanya tersisa PRIMARY KEY)
+SHOW INDEX FROM orders;
+
+-- TAHAP 3: EXPLAIN & EXPLAIN ANALYZE SEBELUM INDEX (BEFORE)
+EXPLAIN
+SELECT 
+    p.id_pelanggan,
+    p.nama_pelanggan,
+    p.no_telepon,
+    p.email,
+    o.id_order,
+    o.nama_produk,
+    o.jumlah,
+    o.total_harga,
+    o.tanggal_order,
+    o.status_order
+FROM pelanggan p
+JOIN orders o ON p.id_pelanggan = o.id_pelanggan
+WHERE o.tanggal_order >= DATE_SUB(NOW(), INTERVAL 3 DAY)
+ORDER BY o.tanggal_order DESC;
+
+EXPLAIN ANALYZE
+SELECT 
+    p.id_pelanggan,
+    p.nama_pelanggan,
+    p.no_telepon,
+    p.email,
+    o.id_order,
+    o.nama_produk,
+    o.jumlah,
+    o.total_harga,
+    o.tanggal_order,
+    o.status_order
+FROM pelanggan p
+JOIN orders o ON p.id_pelanggan = o.id_pelanggan
+WHERE o.tanggal_order >= DATE_SUB(NOW(), INTERVAL 3 DAY)
+ORDER BY o.tanggal_order DESC;
+
+-- TAHAP 4: Tambahkan kembali Index lalu pasang kembali Foreign Key (AFTER)
+CREATE INDEX orders_tanggal_order_index ON orders(tanggal_order);
+CREATE INDEX orders_id_pelanggan_tanggal_order_index ON orders(id_pelanggan, tanggal_order);
+
+ALTER TABLE orders
+    ADD CONSTRAINT orders_id_pelanggan_foreign
+    FOREIGN KEY (id_pelanggan) REFERENCES pelanggan(id_pelanggan)
+    ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- 4. EXPLAIN & EXPLAIN ANALYZE SESUDAH INDEX (AFTER)
+EXPLAIN
+SELECT 
+    p.id_pelanggan,
+    p.nama_pelanggan,
+    p.no_telepon,
+    p.email,
+    o.id_order,
+    o.nama_produk,
+    o.jumlah,
+    o.total_harga,
+    o.tanggal_order,
+    o.status_order
+FROM pelanggan p
+JOIN orders o ON p.id_pelanggan = o.id_pelanggan
+WHERE o.tanggal_order >= DATE_SUB(NOW(), INTERVAL 3 DAY)
+ORDER BY o.tanggal_order DESC;
+
+EXPLAIN ANALYZE
+SELECT 
+    p.id_pelanggan,
+    p.nama_pelanggan,
+    p.no_telepon,
+    p.email,
+    o.id_order,
+    o.nama_produk,
+    o.jumlah,
+    o.total_harga,
+    o.tanggal_order,
+    o.status_order
+FROM pelanggan p
+JOIN orders o ON p.id_pelanggan = o.id_pelanggan
+WHERE o.tanggal_order >= DATE_SUB(NOW(), INTERVAL 3 DAY)
+ORDER BY o.tanggal_order DESC;
+
+
+-- =============================================================
+-- BAGIAN B: SQLITE (EXPLAIN QUERY PLAN - BEFORE & AFTER INDEX)
+-- =============================================================
+
+-- 1. Hapus index untuk simulasi BEFORE
+DROP INDEX IF EXISTS orders_tanggal_order_index;
+DROP INDEX IF EXISTS orders_id_pelanggan_tanggal_order_index;
+
+-- 2. EXPLAIN QUERY PLAN SEBELUM INDEX (BEFORE)
+EXPLAIN QUERY PLAN
+SELECT 
+    p.id_pelanggan,
+    p.nama_pelanggan,
+    p.no_telepon,
+    p.email,
+    o.id_order,
+    o.nama_produk,
+    o.jumlah,
+    o.total_harga,
+    o.tanggal_order,
+    o.status_order
+FROM pelanggan p
+JOIN orders o ON p.id_pelanggan = o.id_pelanggan
+WHERE o.tanggal_order >= datetime('now', '-3 days')
+ORDER BY o.tanggal_order DESC;
+
+-- 3. Buat Index untuk optimasi
+CREATE INDEX IF NOT EXISTS orders_tanggal_order_index ON orders(tanggal_order);
+CREATE INDEX IF NOT EXISTS orders_id_pelanggan_tanggal_order_index ON orders(id_pelanggan, tanggal_order);
+
+-- 4. EXPLAIN QUERY PLAN SESUDAH INDEX (AFTER)
+EXPLAIN QUERY PLAN
+SELECT 
+    p.id_pelanggan,
+    p.nama_pelanggan,
+    p.no_telepon,
+    p.email,
+    o.id_order,
+    o.nama_produk,
+    o.jumlah,
+    o.total_harga,
+    o.tanggal_order,
+    o.status_order
+FROM pelanggan p
+JOIN orders o ON p.id_pelanggan = o.id_pelanggan
+WHERE o.tanggal_order >= datetime('now', '-3 days')
+ORDER BY o.tanggal_order DESC;
+
+
+-- ─────────────────────────────────────────────────────────────
+-- 22. MENAMPILKAN ORDER DARI PELANGGAN TERTENTU (id_pelanggan)
+--     SELECT ... FROM orders WHERE id_pelanggan = '...'
+--     BESERTA EXPLAIN ANALYZE BEFORE & AFTER INDEX
+-- ─────────────────────────────────────────────────────────────
+
+-- 1. Hapus index untuk melihat kondisi BEFORE (Tanpa Index)
+DROP INDEX IF EXISTS orders_id_pelanggan_tanggal_order_index;
+DROP INDEX IF EXISTS orders_tanggal_order_index;
+
+-- 2. EXPLAIN QUERY PLAN / EXPLAIN ANALYZE SEBELUM INDEX (BEFORE)
+-- (Untuk MySQL 8.0+ ganti EXPLAIN QUERY PLAN menjadi EXPLAIN ANALYZE)
+EXPLAIN QUERY PLAN
+SELECT 
+    id_order,
+    id_pelanggan,
+    id_buku,
+    nama_produk,
+    jumlah,
+    total_harga,
+    tanggal_order,
+    status_order
+FROM orders
+WHERE id_pelanggan = 'PLG0001'
+ORDER BY tanggal_order DESC;
+
+-- 3. Buat Index pada id_pelanggan & tanggal_order (AFTER)
+CREATE INDEX IF NOT EXISTS orders_tanggal_order_index ON orders(tanggal_order);
+CREATE INDEX IF NOT EXISTS orders_id_pelanggan_tanggal_order_index ON orders(id_pelanggan, tanggal_order);
+
+-- 4. EXPLAIN QUERY PLAN / EXPLAIN ANALYZE SESUDAH INDEX (AFTER)
+EXPLAIN QUERY PLAN
+SELECT 
+    id_order,
+    id_pelanggan,
+    id_buku,
+    nama_produk,
+    jumlah,
+    total_harga,
+    tanggal_order,
+    status_order
+FROM orders
+WHERE id_pelanggan = 'PLG0001'
+ORDER BY tanggal_order DESC;
+
+-- 5. Tampilkan hasil data SELECT setelah Index
+SELECT 
+    id_order,
+    id_pelanggan,
+    id_buku,
+    nama_produk,
+    jumlah,
+    total_harga,
+    tanggal_order,
+    status_order
+FROM orders
+WHERE id_pelanggan = 'PLG0001'
+ORDER BY tanggal_order DESC;
+
+
+-- ─────────────────────────────────────────────────────────────
+-- 23. SHOW INDEX PADA TABEL ORDERS
+-- ─────────────────────────────────────────────────────────────
+
+-- A. Versi MySQL / MariaDB:
+SHOW INDEX FROM orders;
+
+-- B. Versi SQLite:
+PRAGMA index_list('orders');
+PRAGMA index_info('orders_id_pelanggan_tanggal_order_index');
+PRAGMA index_info('orders_tanggal_order_index');
+
+
+-- ─────────────────────────────────────────────────────────────
+-- 24. SIMULASI LOCKING & STRICT TWO-PHASE LOCKING (2PL)
+--     Studi Kasus: Transaksi Stok Buku Perpustakaan Pentagon
+-- ─────────────────────────────────────────────────────────────
+
+-- Reset stok awal buku B0005 (Laskar Pelangi) menjadi 5 eksemplar
+UPDATE buku SET stok = 5 WHERE id_buku = 'B0005';
+
+-- Skenario B (Strict 2PL dengan FOR UPDATE):
+-- Terminal 1:
+-- BEGIN;
+-- SELECT stok FROM buku WHERE id_buku = 'B0005' FOR UPDATE;
+-- UPDATE buku SET stok = stok - 4 WHERE id_buku = 'B0005';
+-- COMMIT;
+
+-- Terminal 2:
+-- BEGIN;
+-- SELECT stok FROM buku WHERE id_buku = 'B0005' FOR UPDATE; -- (Waiting hingga Terminal 1 COMMIT)
+-- ROLLBACK; -- (Dibatalkan karena sisa stok = 1, tidak cukup untuk pinjam/order 3 buku)
+
+-- Terminal 3 (Live Lock Monitoring MySQL InnoDB):
+SELECT 
+    engine_transaction_id,
+    object_name,
+    lock_type,
+    lock_mode,
+    lock_status,
+    lock_data
+FROM performance_schema.data_locks
+WHERE object_name = 'buku';

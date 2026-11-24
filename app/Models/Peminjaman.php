@@ -9,35 +9,31 @@ class Peminjaman extends Model
 {
     use HasFactory;
 
-    // @dbml-sync:table-property
     protected $table = 'peminjaman';
-    // @enddbml-sync:table-property
+    protected $primaryKey = 'id_peminjaman';
+    public $incrementing = false;
+    protected $keyType = 'string';
+    public $timestamps = false;
 
-    // @dbml-sync:fillable
     protected $fillable = [
+        'id_peminjaman',
         'id_anggota',
-		'id_buku',
-		'id_petugas',
-		'waktu_peminjaman'
+        'id_buku',
+        'id_petugas',
+        'waktu_peminjaman'
     ];
-    // @enddbml-sync:fillable
 
-    // @dbml-sync:casts
     protected $casts = [
         'waktu_peminjaman' => 'datetime'
     ];
-    // @enddbml-sync:casts
 
-    // @dbml-sync:relations
-    public function anggotum()
+    public function anggota()
     {
-        return $this->belongsTo(Anggotum::class, 'id_anggota', 'id_anggota');
+        return $this->belongsTo(Anggota::class, 'id_anggota', 'id_anggota');
     }
 
     public function buku()
     {
         return $this->belongsTo(Buku::class, 'id_buku', 'id_buku');
     }
-
-    // @enddbml-sync:relations
 }

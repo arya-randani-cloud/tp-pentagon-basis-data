@@ -9,32 +9,24 @@ class Buku extends Model
 {
     use HasFactory;
 
-    // @dbml-sync:table-property
     protected $table = 'buku';
-    // @enddbml-sync:table-property
+    protected $primaryKey = 'id_buku';
+    public $incrementing = false;
+    protected $keyType = 'string';
+    public $timestamps = false;
 
-    // @dbml-sync:fillable
     protected $fillable = [
+        'id_buku',
         'judul_buku',
-		'pengarang',
-		'penerbit',
-		'tahun_terbit',
-		'kategori',
-		'stok'
+        'pengarang',
+        'penerbit',
+        'tahun_terbit',
+        'kategori',
+        'stok'
     ];
-    // @enddbml-sync:fillable
 
-    // @dbml-sync:casts
-    protected $casts = [
-        
-    ];
-    // @enddbml-sync:casts
-
-    // @dbml-sync:relations
-    public function peminjamen()
+    public function peminjaman()
     {
         return $this->hasMany(Peminjaman::class, 'id_buku', 'id_buku');
     }
-
-    // @enddbml-sync:relations
 }
